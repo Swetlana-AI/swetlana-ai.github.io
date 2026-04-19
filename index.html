@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Swetlana's Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0a0a;
+      --text: #ededed;
+      --muted: #555;
+      --subtle: #1a1a1a;
+      --border: #1f1f1f;
+      --accent: #ededed;
+      --hover-bg: #111;
+      --tag-bg: #161616;
+      --tag-border: #2a2a2a;
+      --tag-text: #666;
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Geist', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Grain overlay for depth */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── HEADER ─── */
+    header {
+      padding: 80px 0 72px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease forwards;
+      animation-delay: 0.05s;
+    }
+
+    .lab-name {
+      font-size: clamp(18px, 3.5vw, 22px);
+      font-weight: 500;
+      letter-spacing: -0.3px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .lab-name span {
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .lab-sub {
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 300;
+      letter-spacing: 0.1px;
+      line-height: 1.5;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: var(--border);
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      animation-delay: 0.15s;
+    }
+
+    /* ─── PROJECT LIST ─── */
+    .project-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .project-item {
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+    }
+
+    .project-item:nth-child(1) { animation-delay: 0.22s; }
+    .project-item:nth-child(2) { animation-delay: 0.30s; }
+    .project-item:nth-child(3) { animation-delay: 0.38s; }
+    .project-item:nth-child(4) { animation-delay: 0.46s; }
+
+    .project-link {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 22px 0;
+      text-decoration: none;
+      color: inherit;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      position: relative;
+      transition: background 0.18s ease, padding 0.18s ease;
+      border-radius: 2px;
+    }
+
+    .project-link::before {
+      content: '';
+      position: absolute;
+      inset: 0 -16px;
+      background: var(--hover-bg);
+      border-radius: 6px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      pointer-events: none;
+    }
+
+    .project-link:hover::before {
+      opacity: 1;
+    }
+
+    .project-left {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .project-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text);
+      letter-spacing: -0.1px;
+      transition: color 0.15s ease;
+    }
+
+    .project-link:hover .project-name {
+      color: #fff;
+    }
+
+    .project-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 520px;
+    }
+
+    .project-tag {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 2px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: var(--tag-bg);
+      border: 1px solid var(--tag-border);
+      font-family: 'Geist Mono', monospace;
+      font-size: 10px;
+      font-weight: 400;
+      color: var(--tag-text);
+      letter-spacing: 0.3px;
+      width: fit-content;
+    }
+
+    .project-arrow {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 2px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      width: 20px;
+      flex-shrink: 0;
+    }
+
+    .arrow-icon {
+      font-size: 14px;
+      color: var(--muted);
+      transform: translateX(-8px);
+      opacity: 0;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+      user-select: none;
+    }
+
+    .project-link:hover .arrow-icon {
+      transform: translateX(0);
+      opacity: 1;
+      color: var(--text);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      margin-top: auto;
+      padding: 48px 0 40px;
+      opacity: 0;
+      animation: fadeUp 0.5s ease forwards;
+      animation-delay: 0.6s;
+    }
+
+    .footer-text {
+      font-family: 'Geist Mono', monospace;
+      font-size: 11px;
+      color: #333;
+      letter-spacing: 0.2px;
+    }
+
+    /* ─── CURSOR DOT ─── */
+    .cursor-dot {
+      width: 4px;
+      height: 4px;
+      background: #ededed;
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, opacity 0.3s ease, width 0.2s ease, height 0.2s ease;
+      opacity: 0;
+    }
+
+    /* ─── ANIMATION ─── */
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 480px) {
+      header {
+        padding: 52px 0 48px;
+      }
+
+      .project-link {
+        padding: 20px 0;
+      }
+
+      .project-desc {
+        font-size: 12px;
+      }
+
+      .container {
+        padding: 0 20px;
+      }
+    }
+
+    @media (min-width: 1400px) {
+      .container {
+        max-width: 720px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor-dot" id="cursorDot"></div>
+
+  <div class="container">
+
+    <header>
+      <h1 class="lab-name">Swetlana's Lab <span>/ experiments</span></h1>
+      <p class="lab-sub">Experimental tools and vibecoded projects.</p>
+    </header>
+
+    <div class="divider"></div>
+
+    <ul class="project-list">
+
+      <li class="project-item">
+        <a class="project-link" href="https://swetlana-ai.github.io/mdfication-tool/" target="_blank" rel="noopener noreferrer">
+          <div class="project-left">
+            <span class="project-name">mdfication tool</span>
+            <span class="project-desc">Externalizing how you think, decide, and create into structured .md files — so an AI can run a version of your mind when you're not there.</span>
+            <span class="project-tag">mind · markdown · AI</span>
+          </div>
+          <div class="project-arrow">
+            <span class="arrow-icon">→</span>
+          </div>
+        </a>
+      </li>
+
+      <li class="project-item">
+        <a class="project-link" href="https://swetlana-ai.github.io/altman-amodei-trajectory/" target="_blank" rel="noopener noreferrer">
+          <div class="project-left">
+            <span class="project-name">Decision Trajectory Graph — Amodei & Altman</span>
+            <span class="project-desc">A visual exploration of diverging decision paths between two architects of the AI era.</span>
+            <span class="project-tag">graph · decisions · AI leadership</span>
+          </div>
+          <div class="project-arrow">
+            <span class="arrow-icon">→</span>
+          </div>
+        </a>
+      </li>
+
+      <li class="project-item">
+        <a class="project-link" href="https://swetlana-ai.github.io/ai-agent-roadmap/" target="_blank" rel="noopener noreferrer">
+          <div class="project-left">
+            <span class="project-name">AI Agent Roadmap</span>
+            <span class="project-desc">A decision-tree helper for small businesses navigating the AI agent landscape — built to simplify, not overwhelm.</span>
+            <span class="project-tag">tool · SMBs · decision-tree</span>
+          </div>
+          <div class="project-arrow">
+            <span class="arrow-icon">→</span>
+          </div>
+        </a>
+      </li>
+
+      <li class="project-item">
+        <a class="project-link" href="https://swetlana-ai.github.io/celestial-bodies/" target="_blank" rel="noopener noreferrer">
+          <div class="project-left">
+            <span class="project-name">Celestial Bodies</span>
+            <span class="project-desc">Live star positions mapped through the zodiac — a quiet, astronomical instrument for the curious.</span>
+            <span class="project-tag">astronomy · zodiac · live</span>
+          </div>
+          <div class="project-arrow">
+            <span class="arrow-icon">→</span>
+          </div>
+        </a>
+      </li>
+
+    </ul>
+
+    <footer>
+      <p class="footer-text">swetlana-ai.github.io · built with intention</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // Custom cursor — desktop only
+    const dot = document.getElementById('cursorDot');
+    let mouseX = 0, mouseY = 0;
+
+    if (window.matchMedia('(pointer: fine)').matches) {
+      document.addEventListener('mousemove', e => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+        dot.style.left = mouseX + 'px';
+        dot.style.top = mouseY + 'px';
+        dot.style.opacity = '1';
+      });
+
+      document.querySelectorAll('.project-link').forEach(link => {
+        link.addEventListener('mouseenter', () => {
+          dot.style.width = '6px';
+          dot.style.height = '6px';
+        });
+        link.addEventListener('mouseleave', () => {
+          dot.style.width = '4px';
+          dot.style.height = '4px';
+        });
+      });
+    }
+  </script>
+
+</body>
+</html>
